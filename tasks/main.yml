@@ -17,7 +17,7 @@
     post_reboot_delay: "{{ patchday_sleep | default('10') }}"
     msg: "Reboot triggered by Ansible"
   when:
-    - ((reboot_hint is defined and reboot_hint | bool) and (upgrade_unattended_reboot | bool)) or (upgrade_force_reboot | bool)
+    - ((reboot_hint is defined and reboot_hint | bool) and (system_upgrade_unattended_reboot | bool)) or (system_upgrade_force_reboot | bool)
 
 - name: "Main - Include Reporting Playbook."
   include_tasks: "report.yml"
