@@ -1,5 +1,24 @@
 ---
-# ansible_role_template/tasks/main.yml
+# ansible_role_system_upgrade/tasks/main.yml
 # Author: MTO 
-# Description: Main file for ansible_role_template
+# Description: Main file for ansible_role_system_upgrade
 #
+- name: "Main - Display system, os, version and release" 
+  debug: 
+    msg: "SYSTEM {{ inventory_hostname }} | OS {{ ansible_distribution }} | VERSION {{ ansible_distribution_version }} | RELEASE {{ ansible_distribution_release }}"
+
+- name: "Main - Include Package Manager specific Playbook."
+  include_tasks: "{{ ansible_pkg_mgr }}.yml"
+
+- name: "Main - Reboot Server."
+  become: 'yes'
+  reboot:
+    reboot_timeout: 300
+    post_reboot_delay: "{{ patchday_sleep | default('10') }}"
+    msg: "Reboot triggered by Ansible"
+  when:
+    - ((reboot_hint is defined and reboot_hint | bool) and (upgrade_unattended_reboot | bool)) or (upgrade_force_reboot | bool)
+
+- name: "Main - Include Reporting Playbook."
+  include_tasks: "report.yml"
+  when: system_upgrade_reporting_enable | bool
