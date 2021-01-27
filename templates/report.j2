@@ -1,0 +1,8 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# {{ ansible_managed }}
+
+Installed Updates for {{ inventory_hostname }}:
+
+{% if upgrade_update_list_dnf is defined %}{{ upgrade_update_list_dnf.stdout_lines | to_nice_json | replace('[','') | replace(']','') | replace(',','') | replace('"','') | replace('Loading mirror speeds from cached hostfile','') | trim }}
+{% elif upgrade_update_list_yum is defined %}{{ upgrade_update_list_yum.stdout_lines | to_nice_json | replace('[','') | replace(']','') | replace(',','') | replace('"','') | replace('Loading mirror speeds from cached hostfile','') | trim }}
+{% endif %}

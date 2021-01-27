@@ -1,0 +1,17 @@
+galaxy_info:
+  author: MTO
+  description: Ansible Role - System Upgrade  
+  company: MTO
+  license: "license (MIT)"
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: FC
+      versions:
+        - 32
+        - 33
+     
+  galaxy_tags:
+    - fedora
+    
+dependencies: []

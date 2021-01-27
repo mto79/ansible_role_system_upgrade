@@ -1,0 +1,25 @@
+---
+# ansible_role_system_upgrade/defaults/main.yml
+# Author: MTO 
+# Description: Defaults file for ansible_role_system_upgrade
+#
+system_upgrade_stable_os:
+  - Fedora 30
+  - Fedora 31
+  - Fedora 32
+  - Fedora 33
+
+system_upgrade_packages_on_hold: []
+system_upgrade_unattended_reboot: "true"
+system_upgrade_force_reboot: "false"
+system_upgrade_reporting_enable: "false"
+system_upgrade_reporting_path: "."
+system_upgrade_reporting_mail_enable: "false"
+system_upgrade_reporting_mail_subject: "Ansible Update Role Reporting"
+system_upgrade_reporting_mail_to: []
+system_upgrade_reporting_mail_from: []
+system_upgrade_reporting_mail_host: []
+system_upgrade_reporting_mail_port: []
+system_upgrade_reporting_mail_user:
+system_upgrade_reporting_mail_password:
+system_upgrade_reporting_mail_run_once: 'true'

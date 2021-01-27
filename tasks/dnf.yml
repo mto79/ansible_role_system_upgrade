@@ -1,0 +1,53 @@
+---
+# ansible_role_system_upgrade/tasks/dnf.yml
+# Author: MTO 
+# Description: DNF file for ansible_role_system_upgrade
+#
+- name: "DNF- Ensure Dependencies are present."
+  package:
+    name: dnf-utils
+    state: present
+
+- name: "DNF - Mark packages on hold."
+  lineinfile:
+    path: /etc/dnf/dnf.conf
+    line: 'exclude={{ item }}'
+    state: present
+  with_items: "{{ upgrade_packages_on_hold }}"
+
+- name: "DBF - Store List of Updates for further Inspection."
+  command: dnf check-update
+  args:
+    warn: false
+  register: system_upgrade_update_list_dnf
+  failed_when: system_upgrade_update_list_dnf.rc > 100
+  ignore_errors: 'true'
+
+- name: "DNF - Upgrade."
+  dnf:
+    name: "*"
+    state: latest
+
+- name: "DNF - Cleanup."
+  dnf:
+    autoremove: 'yes'
+
+- name: "DNF - Unhold packages."
+  lineinfile:
+    path: /etc/dnf/dnf.conf
+    line: 'exclude={{ item }}'
+    state: absent
+  with_items: "{{ system_upgrade_packages_on_hold }}"
+
+- name: "DNF - Check for reboot hint."
+  shell: dnf needs-restarting -r
+  args:
+    warn: false
+  register: reboot_hint_dnf
+  failed_when: reboot_hint_dnf.rc >= 2
+  changed_when: reboot_hint_dnf.rc == 1
+
+- name: "DNF - Set Reboot Hint."
+  set_fact:
+    reboot_hint: true
+  when: reboot_hint_dnf.rc == 1

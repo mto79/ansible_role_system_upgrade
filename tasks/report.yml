@@ -1,0 +1,37 @@
+---
+
+- name: "Report - Generate Report Files per Host."
+  become: 'no'
+  template:
+    src: report.j2
+    dest: "{{ system_upgrade_reporting_path }}/report_{{ inventory_hostname }}.txt"
+  delegate_to: localhost
+
+- name: "Report - Empty Full Report File."
+  become: 'no'
+  shell: '/bin/echo -e "Generated: $(date)\n\n" > "{{ system_upgrade_reporting_path }}/report_full.txt"'
+  delegate_to: localhost
+  run_once: true
+
+- name: "Report - Concatenate Report Files."
+  become: 'no'
+  shell: 'cat {{ system_upgrade_reporting_path }}/report_{{ system_inventory_hostname }}.txt >> {{ system_upgrade_reporting_path }}/report_full.txt'
+  delegate_to: localhost
+  throttle: 1
+
+- name: "Report - Send Reports per Mail."
+  become: 'no'
+  mail:
+    host: "{{ system_upgrade_reporting_mail_host }}"
+    port: "{{ system_upgrade_reporting_mail_port }}"
+    username: "{{ system_upgrade_reporting_mail_user | default(omit) }}"
+    password: "{{ system_ upgrade_reporting_mail_password | default(omit) }}"
+    subject: "{{ upgrade_reporting_mail_subject }}"
+    body: "{{ lookup('file', '{{ system_upgrade_reporting_path }}/report_full.txt') }}"
+    from: "{{ system_upgrade_reporting_mail_from }}"
+    to: "{{ system_upgrade_reporting_mail_to }}"
+    attach:
+      - '{{ system_upgrade_reporting_path }}/report_full.txt'
+  delegate_to: localhost
+  run_once: "{{ system_upgrade_reporting_mail_run_once }}"
+  when: system_upgrade_reporting_mail_enable | bool

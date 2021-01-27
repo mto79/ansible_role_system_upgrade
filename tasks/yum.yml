@@ -1,0 +1,53 @@
+---
+# ansible_role_system_upgrade/tasks/yum.yml
+# Author: MTO 
+# Description: YUM file for ansible_role_system_upgrade
+#
+- name: "YUM - Ensure Dependencies are present."
+  package:
+    name: yum-utils
+    state: present
+
+- name: "YUM - Mark packages on hold."
+  lineinfile:
+    path: /etc/yum.conf
+    line: 'exclude={{ item }}'
+    state: present
+  with_items: "{{ system_upgrade_packages_on_hold }}"
+
+- name: "YUM - Store List of Updates for further Inspection."
+  command: yum check-update
+  args:
+    warn: false
+  register: system_upgrade_update_list_yum
+  failed_when: system_upgrade_update_list_yum.rc > 100
+  ignore_errors: 'true'
+
+- name: "YUM - Upgrade."
+  yum:
+    name: "*"
+    state: latest
+    update_cache: 'yes'
+
+- name: "YUM - Cleanup."
+  yum:
+    state: absent
+    autoremove: 'yes'
+
+- name: "YUM - Unhold packages."
+  lineinfile:
+    path: /etc/yum.conf
+    line: 'exclude={{ item }}'
+    state: absent
+  with_items: "{{ system_upgrade_packages_on_hold }}"
+
+- name: "YUM - Check for reboot hint."
+  shell: needs-restarting -r
+  register: reboot_hint_yum
+  failed_when: reboot_hint_yum.rc >= 2
+  changed_when: reboot_hint_yum.rc == 1
+
+- name: "YUM - Set Reboot Hint."
+  set_fact:
+    reboot_hint: true
+  when: reboot_hint_yum.rc == 1
