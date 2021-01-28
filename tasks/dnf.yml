@@ -15,7 +15,7 @@
     state: present
   with_items: "{{ system_upgrade_packages_on_hold }}"
 
-- name: "DBF - Store List of Updates for further Inspection."
+- name: "DNF - Store List of Updates for further Inspection."
   command: dnf check-update
   args:
     warn: false
