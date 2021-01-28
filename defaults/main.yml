@@ -13,7 +13,7 @@ system_upgrade_packages_on_hold: []
 system_upgrade_unattended_reboot: "true"
 system_upgrade_force_reboot: "false"
 system_upgrade_release: "true"
-system_upgrade_releasever: "33"
+system_upgrade_release_version: "33"
 system_upgrade_reporting_enable: "false"
 system_upgrade_reporting_path: "."
 system_upgrade_reporting_mail_enable: "false"

@@ -8,7 +8,7 @@
     name: dnf-plugin-system-upgrade
     state: present
 
-- name: "DNF UPGRADE - Download '{{ system_upgrade_release_version }}'"
+- name: "DNF UPGRADE - Download"
   shell: |
     yes | system-upgrade download --releasever="{{ system_upgrade_release_version }}"
 
