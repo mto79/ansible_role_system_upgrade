@@ -10,8 +10,8 @@
 
 - name: "DNF UPGRADE - Download"
   shell: |
-    yes | system-upgrade download --releasever="{{ system_upgrade_release_version }}"
+    yes | dnf system-upgrade download --releasever="{{ system_upgrade_release_version }}"
 
 - name: "DNF UPGRADE - Reboot"
   shell: |
-    yes | system-upgrade reboot
+    yes | dnf system-upgrade reboot
