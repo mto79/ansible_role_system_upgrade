@@ -7,8 +7,8 @@
   debug: 
     msg: "SYSTEM {{ inventory_hostname }} | OS {{ ansible_distribution }} | VERSION {{ ansible_distribution_version }} | RELEASE {{ ansible_distribution_release }}"
 
-- name: "Main - Include Package Manager specific Playbook."
-  include_tasks: dnf.yml
+- name: "Main - Update all packages in current release."
+  include_tasks: update.yml
 
 - name: "Main - Reboot Server."
   become: 'yes'
@@ -19,7 +19,7 @@
   when:
     - ((reboot_hint is defined and reboot_hint | bool) and (system_upgrade_unattended_reboot | bool)) or (system_upgrade_force_reboot | bool)
 
-- name: "Main - Include Package Upgrade specific Playbook."
+- name: "Main - Upgrade package to next release."
   include_tasks: upgrade.yml
   when: 
     - system_upgrade_release is defined and system_upgrade_release | bool
