@@ -1,0 +1,17 @@
+---
+# ansible_role_system_upgrade/tasks/dnf_upgrade.yml
+# Author: MTO 
+# Description: DNF Upgrade file for ansible_role_system_upgrade
+#
+- name: "DNF UPGRADE - Install dnf-plugin-system-upgrade"
+  dnf:
+    name: dnf-plugin-system-upgrade
+    state: present
+
+- name: "DNF UPGRADE - Download {{ system_upgrade_release_version }}"
+  shell: |
+    yes | system-upgrade download --releasever={{ system_upgrade_release_version }}
+
+- name: "DNF UPGRADE - Reboot"
+  shell: |
+    yes | system-upgrade reboot

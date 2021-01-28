@@ -19,6 +19,11 @@
   when:
     - ((reboot_hint is defined and reboot_hint | bool) and (system_upgrade_unattended_reboot | bool)) or (system_upgrade_force_reboot | bool)
 
+- name: "Main - Include Package Upgrade specific Playbook."
+  include_tasks: "{{ ansible_pkg_mgr }}_upgrade.yml"
+  when: 
+    - system_upgrade_release is defined and system_upgrade_release | bool
+
 - name: "Main - Include Reporting Playbook."
   include_tasks: "report.yml"
   when: system_upgrade_reporting_enable | bool
