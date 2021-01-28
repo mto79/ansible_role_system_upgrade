@@ -1,0 +1,24 @@
+---
+- name: run reboot command
+  shell: 'sleep 2 && {{ reboot_command|default("reboot") }}'
+  ignore_errors: true
+  async: 1
+  poll: 0
+
+- name: locally notify about reboot
+  local_action: shell zenity --notification --text "Machine "{{ inventory_hostname|quote }}" is shutting down.  Ensure it decrypts if it is encrypted." || true
+
+- block:
+  - name: wait for server to come back after reboot
+    local_action: wait_for port=22 delay=15 timeout={{ timeout|default(600) }} search_regex=OpenSSH host={{ ansible_ssh_host|default(inventory_hostname) }} state=started
+    retries: '{{ (86400 / (timeout|default(600)|int))|int }}'
+    register: waitalive
+    failed_when: 'waitalive.failed|default(False) and "reset by peer" not in waitalive.module_stderr|default("")'
+    become: False
+
+  - name: wait for server to come back after reboot, take 2
+    local_action: wait_for port=22 delay=15 timeout={{ timeout|default(600) }} search_regex=OpenSSH host={{ ansible_ssh_host|default(inventory_hostname) }} state=started
+    retries: '{{ (86400 / (timeout|default(600)|int))|int }}'
+    when: ("reset by peer" in waitalive.module_stderr|default(""))
+    become: False
+  when: reboot_command|default("reboot") != "poweroff"
