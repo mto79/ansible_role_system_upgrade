@@ -9,6 +9,10 @@ system_upgrade_stable_os:
   - Fedora 32
   - Fedora 33
 
+system_upgrade_all: "true"
+system_upgrade_bugfix: "false"
+system_upgrade_security: "false"
+system_upgrade_only: "false"
 system_upgrade_packages_on_hold: []
 system_upgrade_unattended_reboot: "true"
 system_upgrade_force_reboot: "false"
