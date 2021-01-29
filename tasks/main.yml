@@ -3,14 +3,18 @@
 # Author: MTO 
 # Description: Main file for ansible_role_system_upgrade
 #
-- name: "Main - Display system, os, version and release" 
+- name: "MAIN - Display system, os, version and release" 
   debug: 
     msg: "SYSTEM {{ inventory_hostname }} | OS {{ ansible_distribution }} | VERSION {{ ansible_distribution_version }} | RELEASE {{ ansible_distribution_release }}"
 
-- name: "Main - Update all packages in current release."
-  include_tasks: update.yml
+- name: "MAIN - Update all packages in current release."
+  include_tasks: 
+    file: update.yml
+    apply:
+      tags: update
+  tags: update
 
-- name: "Main - Reboot Server."
+- name: "MAIN - Reboot Server."
   become: 'yes'
   reboot:
     reboot_timeout: 300
@@ -19,11 +23,11 @@
   when:
     - ((reboot_hint is defined and reboot_hint | bool) and (system_upgrade_unattended_reboot | bool)) or (system_upgrade_force_reboot | bool)
 
-- name: "Main - Upgrade package to next release."
+- name: "MAIN - Upgrade package to next release."
   include_tasks: upgrade.yml
   when: 
     - system_upgrade_release is defined and system_upgrade_release | bool
 
-- name: "Main - Include Reporting Playbook."
+- name: "MAIN - Include Reporting Playbook."
   include_tasks: "report.yml"
   when: system_upgrade_reporting_enable | bool

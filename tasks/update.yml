@@ -3,19 +3,19 @@
 # Author: MTO 
 # Description: DNF file for ansible_role_system_upgrade
 #
-- name: "DNF- Ensure Dependencies are present."
+- name: "UPDATE - Ensure Dependencies are present."
   package:
     name: dnf-utils
     state: present
 
-- name: "DNF - Mark packages on hold."
+- name: "UPDATE - Mark packages on hold."
   lineinfile:
     path: /etc/dnf/dnf.conf
     line: 'exclude={{ item }}'
     state: present
   with_items: "{{ system_upgrade_packages_on_hold }}"
 
-- name: "DNF - Store List of Updates for further Inspection."
+- name: "UPDATE - Store List of Updates for further Inspection."
   command: dnf check-update
   args:
     warn: false
@@ -23,23 +23,56 @@
   failed_when: system_upgrade_update_list_dnf.rc > 100
   ignore_errors: 'true'
 
-- name: "DNF - Upgrade."
+- name: "UPDATE - All."
   dnf:
     name: "*"
     state: latest
+  when: system_upgrade_all is defined and system_upgrade_all == true
+  tags:
+    - all 
 
-- name: "DNF - Cleanup."
+- name: "UPDATE - Security"
+  dnf:
+    name: "*"
+    state: latest
+    security: true
+  when: system_upgrade_security is defined and system_upgrade_security == true
+  ignore_errors: yes
+  tags:
+    - securtiy
+
+- name: "UPDATE - Bugfix"
+  yum:
+    name: "*"
+    state: latest
+    bugfix: true
+  when: system_upgrade_bugfix is defined and system_upgrade_bugfix == true
+  ignore_errors: yes
+  tags:
+    - bugfix
+
+- name: "UPDATE  - Update only"
+  yum:
+    name: "*"
+    state: latest
+    update_only: true
+  when: system_upgrade_only is defined and system_upgrade_only == true
+  ignore_errors: yes
+  tags:
+    - only
+
+- name: "UPDATE - Cleanup."
   dnf:
     autoremove: 'yes'
 
-- name: "DNF - Unhold packages."
+- name: "UPDATE - Unhold packages."
   lineinfile:
     path: /etc/dnf/dnf.conf
     line: 'exclude={{ item }}'
     state: absent
   with_items: "{{ system_upgrade_packages_on_hold }}"
 
-- name: "DNF - Check for reboot hint."
+- name: "UPDATE - Check for reboot hint."
   shell: dnf needs-restarting -r
   args:
     warn: false
@@ -47,7 +80,7 @@
   failed_when: reboot_hint_dnf.rc >= 2
   changed_when: reboot_hint_dnf.rc == 1
 
-- name: "DNF - Set Reboot Hint."
+- name: "UPDATE - Set Reboot Hint."
   set_fact:
     reboot_hint: true
   when: reboot_hint_dnf.rc == 1
