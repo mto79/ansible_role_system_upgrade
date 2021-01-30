@@ -27,7 +27,8 @@
   dnf:
     name: "*"
     state: latest
-  when: system_upgrade_all is defined and system_upgrade_all == true
+  when: 
+    - system_upgrade_all | bool
   tags:
     - all 
 
@@ -36,7 +37,8 @@
     name: "*"
     state: latest
     security: true
-  when: system_upgrade_security is defined and system_upgrade_security == true
+  when: 
+    - system_upgrade_security | bool
   ignore_errors: yes
   tags:
     - securtiy
@@ -46,7 +48,8 @@
     name: "*"
     state: latest
     bugfix: true
-  when: system_upgrade_bugfix is defined and system_upgrade_bugfix == true
+  when: 
+    - system_upgrade_bugfix | bool
   ignore_errors: yes
   tags:
     - bugfix
@@ -56,7 +59,8 @@
     name: "*"
     state: latest
     update_only: true
-  when: system_upgrade_only is defined and system_upgrade_only == true
+  when: 
+    - system_upgrade_only | bool
   ignore_errors: yes
   tags:
     - only
